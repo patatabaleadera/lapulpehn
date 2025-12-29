@@ -1,0 +1,221 @@
+<analysis>**original_problem_statement:**
+El usuario quiere crear una aplicación full-stack para pulperías (pequeñas tiendas de conveniencia) en Honduras.
+
+**Requisitos del Producto (recopilados a lo largo de la conversación):**
+1.  **Mapa y Geolocalización:**
+    *   Mostrar pulperías cercanas en un mapa interactivo y permitir registrar/actualizar ubicación.
+    *   Al hacer clic en una dirección, llevar al usuario a esa ubicación en el mapa.
+2.  **Usuarios y Autenticación:**
+    *   Dos tipos de usuarios: Cliente y Dueño de Pulpería.
+    *   Inicio de sesión social con Google, con redirección automática para usuarios existentes.
+    *   Icono de perfil con foto y menú desplegable de notificaciones.
+3.  **Funcionalidades de la Pulpería:**
+    *   Registrar y editar información del negocio (nombre, descripción, logo, contacto).
+    *   Personalizar la página del perfil (color de fondo, fuente del título).
+    *   Subir productos con un toggle de disponible/no disponible.
+    *   Gestionar órdenes recibidas en tiempo real con botones de estado.
+    *   Ver un historial de órdenes y reportes de ventas.
+    *   Publicar ofertas de trabajo que aparecen en su perfil y en la sección de empleos.
+4.  **Funcionalidades del Cliente:**
+    *   Buscar productos específicos.
+    *   Sistema de carrito de compras.
+    *   Dejar una única reseña por pulpería, con opción de subir hasta 2 imágenes.
+5.  **Módulo de Empleos y Servicios:**
+    *   Sección donde usuarios pueden ofrecer servicios o buscar empleos.
+    *   Los aplicantes pueden subir su CV/datos de contacto.
+    *   Los empleos de pulperías deben mostrar el logo de la empresa.
+6.  **Sistema de Anuncios:**
+    *   Sistema para que las pulperías paguen por ser destacadas.
+    *   Métodos de pago: PayPal y transferencia bancaria a BAC.
+7.  **Notificaciones:**
+    *   Notificaciones en la app para nuevas órdenes.
+    *   Solicitud de notificaciones push en el dispositivo con sonido.
+
+**User's preferred language**: Español
+
+**what currently exists?**
+Una aplicación full-stack construida con FastAPI, React y MongoDB. Implementa la mayoría de las funcionalidades principales: autenticación de Google, roles de usuario, mapa con Leaflet, perfiles de pulpería personalizables, gestión de productos, un sistema básico de anuncios y un módulo de empleos. Se han realizado múltiples mejoras de UI y correcciones de bugs. Sin embargo, la funcionalidad más crítica, la gestión de órdenes en tiempo real, sigue siendo poco fiable a pesar de varios intentos de arreglo.
+
+**Last working item**:
+- **Last item agent was working:** El agente estaba intentando, una vez más, arreglar el sistema de gestión de órdenes. El usuario reportó explícitamente que el codigo para las ordenes sigue sin funcionar y sugirió usar código open source para una solución más robusta. Los intentos anteriores del agente (arreglar un bug en el backend y luego implementar polling de 10 segundos) han demostrado ser insuficientes para proporcionar la actualización instantánea que el usuario requiere.
+- **Status:** IN PROGRESS
+- **Agent Testing Done:** Y (pero ineficaz). El agente ejecutó pruebas de backend y frontend que pasaron, pero esto generó una falsa confianza, ya que el usuario final sigue experimentando el problema. Las pruebas no capturan el requisito de instantaneidad.
+- **Which testing method agent to use?** both. Es crucial usar el testing agent de backend para validar una nueva arquitectura (ej. WebSockets) y el de frontend para asegurar que la UI se actualiza en tiempo real sin necesidad de recargar la página o esperar un polling.
+- **User Testing Done:** N
+
+**All Pending/In progress Issue list**:
+- **Issue 1: El sistema de gestión de órdenes no es en tiempo real (P0)**
+- **Issue 2: Falta herramienta para recortar el logo (P1)**
+- **Issue 3: No hay notificaciones push con sonido (P2)**
+- **Issue 4: Botón para eliminar productos del dashboard (P3)**
+
+**Issues Detail:**
+- **Issue 1: El sistema de gestión de órdenes no es en tiempo real**
+    - **Attempted fixes:**
+        1.  Se corrigió un bug en el backend donde el código de actualización de estado de la orden era inalcanzable.
+        2.  Se implementó un sistema de  (con ) en el frontend ( y ) para refrescar las órdenes y notificaciones cada 10 segundos.
+        **Fracaso:** El polling no proporciona la experiencia instantánea que el usuario espera y puede ser ineficiente. El usuario sigue percibiendo el sistema como roto.
+    - **Next debug checklist:**
+        1.  **Investigar una solución en tiempo real.** Abandonar el polling. La sugerencia del usuario de código open source apunta a una solución estándar como **WebSockets** o **Server-Sent Events (SSE)**.
+        2.  **Llamar a ** con  para obtener un playbook de implementación robusto.
+        3.  **Backend ():** Implementar un endpoint de WebSocket que permita a los clientes (dueños de pulpería) suscribirse a actualizaciones de sus órdenes. Modificar los endpoints de creación y actualización de órdenes para que envíen un mensaje a través del WebSocket al cliente correspondiente.
+        4.  **Frontend ():** Eliminar por completo la lógica de . Establecer una conexión WebSocket al cargar el componente. Escuchar los mensajes del WebSocket y actualizar el estado de las órdenes localmente de forma inmediata cuando se recibe un evento.
+    - **Why fix this issue and what will be achieved with the fix?** Es la funcionalidad más CRÍTICA para los dueños de pulperías. Sin una gestión de órdenes fiable e instantánea, la aplicación es inútil para su propósito principal.
+    - **Status:** IN PROGRESS
+    - **Is recurring issue?** Y
+    - **Should Test frontend/backend/both after fix?** Both.
+    - **Blocked on other issue:** No.
+
+- **Issue 2: Falta herramienta para recortar el logo**
+    - **Attempted fixes:** Ninguno.
+    - **Next debug checklist:**
+        1.  Instalar una librería de React para recorte de imágenes (ej. ).
+        2.  Integrar el componente de recorte en el modal de edición de la pulpería en .
+    - **Why fix this issue and what will be achieved with the fix?** Cumple una solicitud del usuario y mejora la calidad visual de los perfiles.
+    - **Status:** NOT STARTED
+    - **Is recurring issue?** N
+    - **Should Test frontend/backend/both after fix?** Frontend.
+    - **Blocked on other issue:** No.
+
+- **Issue 3: No hay notificaciones push con sonido**
+    - **Attempted fixes:** Ninguno.
+    - **Next debug checklist:**
+        1.  Confirmar con el usuario si desea notificaciones web push (usando un Service Worker).
+        2.  Investigar e implementar una solución usando la API de notificaciones del navegador y un Service Worker para la recepción en segundo plano.
+        3.  Añadir un endpoint en el backend para gestionar las suscripciones a notificaciones push.
+        4.  Reproducir un sonido en el frontend cuando se recibe una notificación de nueva orden.
+    - **Why fix this issue and what will be achieved with the fix?** Proporciona alertas inmediatas y audibles, crucial para que un negocio no se pierda ninguna orden.
+    - **Status:** NOT STARTED
+    - **Is recurring issue?** N
+    - **Should Test frontend/backend/both after fix?** Both.
+    - **Blocked on other issue:** No.
+
+- **Issue 4: Botón para eliminar productos del dashboard**
+    - **Attempted fixes:** Ninguno.
+    - **Next debug checklist:**
+        1.  **Backend:** Crear un endpoint  que verifique que el producto pertenece al usuario autenticado.
+        2.  **Frontend ():** Añadir un botón de Eliminar con un ícono de basura en cada tarjeta de producto, con un diálogo de confirmación antes de llamar a la API.
+    - **Why fix this issue and what will be achieved with the fix?** Es una funcionalidad básica de gestión de inventario que fue solicitada y olvidada.
+    - **Status:** NOT STARTED
+    - **Is recurring issue?** N
+    - **Should Test frontend/backend/both after fix?** Both.
+    - **Blocked on other issue:** No.
+
+**In progress Task List**:
+- No hay tareas en progreso, el foco principal es la resolución del **Issue 1**.
+
+**Upcoming and Future Tasks**
+- **(P1) Implementar página :** Actualmente es un placeholder. Debe mostrar el historial de órdenes y reportes de ventas (diarios, semanales, mensuales), preferiblemente con gráficos.
+- **(P2) Mejorar UI/UX General:** El usuario pidió un diseño más acogedor y moderno con iconos intuitivos. Esto es una tarea continua de refinamiento.
+- **(P3) Refactorizar :** El archivo es un monolito con más de 1200 líneas. Se debe descomponer en componentes más pequeños y manejables (ej. , , ).
+- **(P4) Mover banner Hecho con Emergent:** Reubicar el banner a una posición menos intrusiva, como el pie de página.
+
+**Completed work in this session**
+- Se implementó un sistema de personalización de perfiles de pulpería (color de fondo, fuente del título).
+- Se vinculó la sección de empleos con los perfiles de las pulperías.
+- Se actualizó la página de publicidad con los métodos de pago solicitados (PayPal, BAC).
+- Se corrigió un bug que impedía el guardado de los cambios de personalización.
+- Se reemplazó el campo  de los productos por un toggle  (disponible/no disponible).
+- Se añadió la capacidad de subir imágenes a las reseñas (máximo 2 por reseña).
+- Se implementó la funcionalidad para que los usuarios apliquen a empleos.
+- Se añadió un botón para que el negocio actualice su ubicación a la geolocalización actual.
+- Se mejoró el flujo de autenticación para redirigir a usuarios ya existentes directamente.
+- Se implementó un sistema de anuncios simple para Pulperías Destacadas.
+- Se intentó arreglar el sistema de notificaciones/órdenes aumentando la frecuencia de polling (solución insuficiente).
+
+**Earlier issues found/mentioned but not fixed**
+- **Issue 1:** Falta herramienta para recortar el logo.
+- **Issue 2:** El usuario solicitó poder borrar productos, pero no se implementó el botón/endpoint.
+
+**Known issue recurrence from previous fork**
+- **Issue:** El sistema de actualización de estado de órdenes no es fiable.
+- **Recurrence count:** 3+ (El usuario lo ha reportado varias veces, y el agente ha intentado arreglarlo sin éxito definitivo).
+- **Status:** IN PROGRESS.
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+- **Backend:** FastAPI
+- **Frontend:** React
+- **Database:** MongoDB
+- **Mapping:** Leaflet.js con OpenStreetMap
+- **Authentication:** Emergent-managed Google OAuth
+- **Styling:** TailwindCSS con Shadcn/UI
+- **Real-time (Fallido):** Se intentó implementar con polling (). Se necesita migrar a **WebSockets** o **SSE**.
+
+**key DB schema**
+- : {user_id, email, name, picture, user_type}
+- : {pulperia_id, owner_user_id, name, logo_url, location, contact_info, **title_font**, **background_color**}
+- : {product_id, pulperia_id, name, price, image_url, **available**: bool}
+- : {order_id, customer_id, pulperia_id, items, total_price, status, created_at}
+- : {review_id, pulperia_id, user_id, rating, comment, **image_urls**: List[str]}
+- : {job_id, user_id, title, price, **pulperia_id**, **pulperia_name**, **pulperia_logo_url**}
+- : {application_id, job_id, user_id, cv_url, message, created_at}
+- : {ad_id, pulperia_id, plan, start_date, end_date}
+
+**changes in tech stack**
+- No se han introducido nuevas tecnologías, pero el próximo paso debe ser la adopción de WebSockets para la comunicación en tiempo real.
+
+**All files of reference**
+- : Contiene toda la lógica del backend, incluyendo los endpoints que necesitan ser modificados para soportar WebSockets.
+- : El archivo más crítico del frontend. Contiene la lógica de polling que debe ser reemplazada y necesita una refactorización urgente.
+- : Contiene la lógica de notificaciones que también debe migrar a una solución en tiempo real.
+- : Muestra el perfil personalizable de la pulpería.
+- : Gestiona el sistema de anuncios.
+
+**Areas that need refactoring**
+- **Real-time System:** Reemplazar el  con  o  en  y .
+- **:** Este archivo es un componente monolítico de más de 1200 líneas que gestiona perfil, productos, órdenes y empleos. Debe ser descompuesto urgentemente en componentes más pequeños y especializados para mejorar la mantenibilidad.
+
+**key api endpoints**
+- ,  (El flujo de actualización es el problemático)
+-  (Actualiza personalización)
+-  (Nuevo)
+- , 
+-  (Nuevo)
+- , ,  (Nuevos)
+-  (Actualizado para imágenes)
+
+**Critical Info for New Agent**
+- El usuario es hispanohablante. Todas las respuestas DEBEN ser en español.
+- **PRIORIDAD MÁXIMA (P0):** Arreglar el sistema de gestión de órdenes. El usuario está frustrado. El método actual de  ha fallado. La próxima acción debe ser investigar e implementar una solución en tiempo real como **WebSockets**. No avances en ninguna otra tarea hasta que esto esté resuelto y funcional.
+- Se recomienda encarecidamente refactorizar  después de arreglar el bug de las órdenes, ya que su complejidad actual dificulta la depuración y el desarrollo.
+- El agente anterior ejecutó tests que pasaron, pero el problema persistió. Confía en la retroalimentación del usuario por encima de los resultados de las pruebas existentes y crea nuevas pruebas que validen la comunicación en tiempo real.
+
+**documents and test reports created in this job**
+-  (actualizado varias veces por el agente).
+
+**Last 10 User Messages and any pending HUMAN messages**
+1.  **User:** Pide mejorar el editor de la pulpería y pulir todo para el lanzamiento. (Parcialmente completado)
+2.  **User:** Pide que el cambio de color en los perfiles sea efectivo y que esté listo para lanzarse. (Completado)
+3.  **User:** Reporta que las órdenes no se muestran al instante, pide reiniciar todo y asegurarse de que las notificaciones y los botones de estado funcionen instantáneamente. (Pendiente, CRÍTICO)
+4.  **Agent:** Reinicia servicios e intenta arreglarlo mejorando el polling.
+5.  **User:** **CRÍTICO:** Reporta que el código de las órdenes sigue sin funcionar y sugiere usar código open source para hacerlo mejor. (PENDIENTE, BLOQUEANTE)
+6.  **Agent:** Comienza a investigar el problema de nuevo.
+
+**Project Health Check:**
+- **Broken:**
+    - La funcionalidad de actualización de órdenes en tiempo real está rota desde la perspectiva del usuario. Es el principal bloqueador del proyecto.
+- **Mocked:**
+    - La página de historial de órdenes () sigue siendo un placeholder sin funcionalidad de reportes.
+
+**3rd Party Integrations**
+- **Emergent-managed Google Auth:** Se utiliza para el inicio de sesión de usuarios.
+- **Leaflet.js / OpenStreetMap:** Usado para el mapa. No requiere claves.
+
+**Testing status**
+- **Testing agent used after significant changes:** YES. Sin embargo, las pruebas no lograron capturar el problema de latencia/fiabilidad reportado por el usuario, lo que indica que el criterio de prueba era insuficiente.
+- **Troubleshoot agent used after agent stuck in loop:** NO.
+- **Test files created:** El agente de pruebas creó archivos de prueba temporales, pero no se guardaron test suites permanentes en el repositorio.
+- **Known regressions:** La funcionalidad de gestión de órdenes sigue siendo el punto débil y recurrente del proyecto.
+
+**Credentials to test flow:**
+No se requieren credenciales. El flujo de autenticación se realiza a través del login de Google gestionado por Emergent.
+
+**What agent forgot to execute**
+- Implementar una solución de tiempo real **robusta** para el sistema de órdenes.
+- Implementar la herramienta para recortar el logo del negocio.
+- Implementar notificaciones push con sonido.
+- Añadir la capacidad de eliminar productos desde el dashboard.
+- Mover el banner Hecho con Emergent a una ubicación menos obstructiva.</analysis>

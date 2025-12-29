@@ -1,0 +1,131 @@
+{
+  "project_name": "PulpeCerca",
+  "design_philosophy": {
+    "identity": "Tropical Modern & Community First",
+    "core_values": ["Warmth", "Simplicity", "Vibrancy", "Trust"],
+    "visual_style": "Soft-Pop",
+    "description": "A fusion of traditional Honduran pulpería aesthetics (hand-painted signs, vibrant fruits) with modern, clean app design. It avoids sterile tech minimalism in favor of warm, inviting textures and colors."
+  },
+  "typography": {
+    "headings": {
+      "font_family": "Chivo, sans-serif",
+      "weights": ["700", "900"],
+      "usage": "Main headers, section titles. Use tight tracking (-0.02em).",
+      "import_url": "https://fonts.googleapis.com/css2?family=Chivo:wght@400;700;900&family=Nunito:wght@400;600;700&display=swap"
+    },
+    "body": {
+      "font_family": "Nunito, sans-serif",
+      "weights": ["400", "600", "700"],
+      "usage": "Paragraphs, UI labels, buttons. Rounded nature feels friendly."
+    }
+  },
+  "colors": {
+    "palette": {
+      "primary": {
+        "DEFAULT": "#F97316",
+        "foreground": "#FFFFFF",
+        "description": "Mango Orange - Appetite, warmth, energy."
+      },
+      "secondary": {
+        "DEFAULT": "#0EA5E9",
+        "foreground": "#FFFFFF",
+        "description": "Tropical Sky - Freshness, trust, balance."
+      },
+      "accent": {
+        "DEFAULT": "#EAB308",
+        "foreground": "#422006",
+        "description": "Sunshine Yellow - Highlights, offers, stars."
+      },
+      "background": {
+        "DEFAULT": "#FFF7ED",
+        "description": "Warm Sand - Never pure white. A very light orange tint."
+      },
+      "text": {
+        "primary": "#431407",
+        "secondary": "#78350F",
+        "description": "Dark Coffee/Earth tones instead of pure black."
+      },
+      "success": "#22C55E",
+      "error": "#EF4444",
+      "warning": "#F59E0B"
+    },
+    "gradients": {
+      "hero": "linear-gradient(135deg, #F97316 0%, #FB923C 100%)",
+      "card_hover": "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,247,237,0.8) 100%)"
+    }
+  },
+  "layout": {
+    "spacing_scale": "Generous. Use p-6 or p-8 where p-4 is standard.",
+    "container": "max-w-md mx-auto md:max-w-5xl",
+    "border_radius": {
+      "cards": "rounded-2xl",
+      "buttons": "rounded-full",
+      "inputs": "rounded-xl"
+    },
+    "grid_system": {
+      "mobile": "grid-cols-1 gap-4",
+      "desktop": "grid-cols-12 gap-8",
+      "bento": "Use for categories: Mix square (1x1) and tall (1x2) tiles."
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-primary text-white hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all active:scale-95 font-bold py-3 px-6",
+      "secondary": "bg-white text-primary border-2 border-primary/20 hover:border-primary hover:bg-orange-50 font-bold py-3 px-6",
+      "ghost": "text-stone-600 hover:text-primary hover:bg-orange-50 font-semibold"
+    },
+    "cards": {
+      "product": "bg-white rounded-2xl shadow-sm hover:shadow-md border border-orange-100 overflow-hidden transition-all duration-300 group",
+      "store": "bg-white rounded-2xl shadow-md hover:shadow-lg border-b-4 border-primary transition-all"
+    },
+    "inputs": {
+      "default": "bg-white border-stone-200 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl py-3 px-4 text-stone-800 placeholder:text-stone-400"
+    },
+    "navigation": {
+      "mobile_bottom_bar": "fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-stone-100 py-3 px-6 flex justify-between items-center z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]"
+    }
+  },
+  "visual_assets": {
+    "icons_library": "lucide-react",
+    "icon_style": "Rounded, stroke-width-2.5",
+    "images": {
+      "hero_bg": "https://images.unsplash.com/photo-1701849939549-d5ad4d92adbb?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "categories": {
+        "fruits": "https://images.unsplash.com/photo-1758184468790-f2b89a28a21d?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "drinks": "https://images.unsplash.com/photo-1711898048484-87a6c243eb67?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "snacks": "https://images.unsplash.com/photo-1721372261037-6b86558026a9?crop=entropy&cs=srgb&fm=jpg&q=85"
+      },
+      "placeholders": {
+        "store_front": "https://images.unsplash.com/photo-1611432299367-d4392c4bec01?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "user_avatar": "https://images.unsplash.com/photo-1753351052046-8c6818304a4f?crop=entropy&cs=srgb&fm=jpg&q=85"
+      }
+    }
+  },
+  "motion": {
+    "transitions": "transition-all duration-300 ease-out",
+    "hover_effects": "hover:-translate-y-1 hover:shadow-lg",
+    "page_transition": "initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}"
+  },
+  "accessibility": {
+    "contrast_check": "Ensure text on orange backgrounds is white or very dark brown. Avoid light grey text.",
+    "touch_targets": "Minimum 44px for all interactive elements.",
+    "labels": "All icons must have aria-labels."
+  },
+  "instructions_to_main_agent": [
+    "1. SETUP: Install 'lucide-react' and 'framer-motion' immediately.",
+    "2. FONTS: Add the Google Fonts import to index.css immediately.",
+    "3. THEME: Update tailwind.config.js with the specific colors defined above. Do not use default Tailwind colors.",
+    "4. COMPONENTS: When building the 'Store Card', use the 'store' card style defined above. It must have a border-bottom-width of 4px.",
+    "5. MAP: Use a placeholder div with a subtle pattern background for the map if the API is not connected, but style it to look like a map container (rounded corners, shadow).",
+    "6. CASH ONLY: Add a visible 'Solo Efectivo' (Cash Only) badge to the checkout and store profile pages.",
+    "7. MOBILE: Always design for mobile width first, then expand to desktop.",
+    "8. DATA-TESTID: Add data-testid to all buttons and inputs (e.g., 'login-btn', 'search-input')."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Do not use gradients for text.",
+    "Do not use default shadcn/ui styles without customization.",
+    "Use 'sonner' for toasts.",
+    "Ensure all images have alt text.",
+    "Use the provided image URLs for placeholders."
+  ]
+}
