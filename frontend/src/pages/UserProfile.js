@@ -122,7 +122,7 @@ const UserProfile = () => {
                 rel="noopener noreferrer"
                 className="text-purple-600 hover:text-purple-700 font-semibold text-sm break-all"
               >
-                nolascale694@gmail.com
+                paypal.me/alejandronolasco979
               </a>
             </div>
           </div>
