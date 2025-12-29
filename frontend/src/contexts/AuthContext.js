@@ -6,109 +6,103 @@ const AuthContext = createContext(null);
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
+console.log('[AuthContext] Inicializando con BACKEND_URL:', BACKEND_URL);
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Check authentication status
-  const checkAuth = useCallback(async (showError = false) => {
+  // Función simple para verificar autenticación
+  const checkAuth = useCallback(async () => {
     try {
+      console.log('[AuthContext] Verificando autenticación...');
       const response = await axios.get(`${BACKEND_URL}/api/auth/me`, {
         withCredentials: true,
-        timeout: 10000 // 10 second timeout
+        timeout: 15000
       });
       
+      console.log('[AuthContext] Usuario autenticado:', response.data);
       setUser(response.data);
-      setIsAuthenticated(true);
       return response.data;
     } catch (error) {
-      // Only clear auth if it's a real auth error (401, 403)
-      if (error.response && [401, 403].includes(error.response.status)) {
-        setUser(null);
-        setIsAuthenticated(false);
-        if (showError) {
-          toast.error('Sesión expirada. Por favor inicia sesión nuevamente.');
-        }
-      }
-      // For network errors, don't clear auth immediately
+      console.log('[AuthContext] No hay sesión activa');
+      setUser(null);
       return null;
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Login with session ID
+  // Función simple para login
   const login = useCallback(async (sessionId) => {
     try {
       setLoading(true);
-      console.log('[AuthContext] Attempting login with session ID:', sessionId?.substring(0, 10) + '...');
+      console.log('[AuthContext] Iniciando login con session_id:', sessionId.substring(0, 15) + '...');
+      console.log('[AuthContext] URL del backend:', `${BACKEND_URL}/api/auth/session`);
       
       const response = await axios.post(
         `${BACKEND_URL}/api/auth/session`,
         { session_id: sessionId },
         { 
           withCredentials: true,
-          timeout: 10000
+          timeout: 15000,
+          headers: {
+            'Content-Type': 'application/json'
+          }
         }
       );
 
-      console.log('[AuthContext] Login successful:', response.data);
-      const userData = response.data;
-      setUser(userData);
-      setIsAuthenticated(true);
-      return userData;
+      console.log('[AuthContext] Login exitoso, datos del usuario:', response.data);
+      setUser(response.data);
+      toast.success('¡Bienvenido!');
+      return response.data;
     } catch (error) {
-      console.error('[AuthContext] Login error details:', {
+      console.error('[AuthContext] Error en login:', {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
-        url: `${BACKEND_URL}/api/auth/session`
+        url: error.config?.url
       });
       
-      const errorMsg = error.response?.data?.detail || 'Error al iniciar sesión. Por favor intenta nuevamente.';
-      toast.error(errorMsg);
+      const errorMessage = error.response?.data?.detail || 'Error al iniciar sesión';
+      toast.error(errorMessage);
       throw error;
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Logout
+  // Función simple para logout
   const logout = useCallback(async () => {
     try {
+      console.log('[AuthContext] Cerrando sesión...');
       await axios.post(
         `${BACKEND_URL}/api/auth/logout`,
         {},
         { withCredentials: true }
       );
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('[AuthContext] Error en logout:', error);
     } finally {
       setUser(null);
-      setIsAuthenticated(false);
-      toast.success('Sesión cerrada correctamente');
+      toast.success('Sesión cerrada');
     }
   }, []);
 
-  // Update user data
-  const updateUser = useCallback((userData) => {
-    setUser(userData);
-  }, []);
-
-  // Initial auth check - only once on mount
+  // Verificar auth al montar
   useEffect(() => {
-    checkAuth(false);
+    console.log('[AuthContext] Montando AuthProvider, verificando auth inicial...');
+    checkAuth();
   }, [checkAuth]);
 
   const value = {
     user,
     loading,
-    isAuthenticated,
+    isAuthenticated: !!user,
     login,
     logout,
     checkAuth,
-    updateUser
+    setUser
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -117,7 +111,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth debe usarse dentro de AuthProvider');
   }
   return context;
 };

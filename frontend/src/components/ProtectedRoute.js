@@ -1,20 +1,21 @@
 import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { isAuthenticated, loading, user } = useAuth();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    // Only redirect if we're done loading and not authenticated
-    if (!loading && !isAuthenticated) {
+    console.log('[ProtectedRoute] Verificando acceso - loading:', loading, 'user:', !!user);
+    
+    if (!loading && !user) {
+      console.log('[ProtectedRoute] Usuario no autenticado, redirigiendo a /');
       navigate('/', { replace: true });
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [user, loading, navigate]);
 
-  // Show loading state while checking authentication
+  // Mostrar loading mientras verifica
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-orange-50">
@@ -26,12 +27,12 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  // If not authenticated after loading, don't render (will redirect)
-  if (!isAuthenticated) {
+  // Si no hay usuario después del loading, no renderizar nada (se redirigirá)
+  if (!user) {
     return null;
   }
 
-  // Pass user data through location state if needed
+  console.log('[ProtectedRoute] Usuario autenticado, mostrando contenido protegido');
   return children;
 };
 

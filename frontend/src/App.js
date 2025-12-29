@@ -21,8 +21,11 @@ import './App.css';
 function AppRouter() {
   const location = useLocation();
   
-  // Handle authentication callback
-  if (location.hash?.includes('session_id=')) {
+  console.log('[App] Navegando a:', location.pathname, 'Hash:', location.hash);
+  
+  // Si hay hash con session_id, ir a AuthCallback
+  if (location.hash && location.hash.includes('session_id=')) {
+    console.log('[App] Detectado session_id en hash, renderizando AuthCallback');
     return <AuthCallback />;
   }
   
@@ -46,6 +49,9 @@ function AppRouter() {
 }
 
 function App() {
+  console.log('[App] Iniciando aplicación');
+  console.log('[App] REACT_APP_BACKEND_URL:', process.env.REACT_APP_BACKEND_URL);
+  
   return (
     <div className="App">
       <BrowserRouter>
