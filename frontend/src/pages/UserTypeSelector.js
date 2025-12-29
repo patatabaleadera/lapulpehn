@@ -1,21 +1,38 @@
-import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { ShoppingBag, Store, Sparkles } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 const UserTypeSelector = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { user, updateUser, checkAuth } = useAuth();
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState(null);
-  const user = location.state?.user;
+
+  useEffect(() => {
+    // If user already has a type, redirect them
+    if (user?.user_type) {
+      if (user.user_type === 'cliente') {
+        navigate('/map', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [user, navigate]);
 
   if (!user) {
-    navigate('/', { replace: true });
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-900 to-red-950">
+        <div className="text-center">
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-red-300 border-r-transparent"></div>
+          <p className="mt-4 text-white font-semibold">Cargando...</p>
+        </div>
+      </div>
+    );
   }
 
   const handleSelectType = async (userType) => {
@@ -23,13 +40,19 @@ const UserTypeSelector = () => {
     setLoading(true);
     
     try {
-      await axios.post(
+      const response = await axios.post(
         `${BACKEND_URL}/api/auth/set-user-type?user_type=${userType}`,
         {},
         { withCredentials: true }
       );
 
+      // Update the auth context with the new user data
+      updateUser(response.data);
+      
       toast.success('¡Cuenta configurada correctamente!');
+      
+      // Force a re-check of auth to ensure everything is synced
+      await checkAuth(false);
       
       if (userType === 'cliente') {
         navigate('/map', { replace: true });
@@ -38,7 +61,7 @@ const UserTypeSelector = () => {
       }
     } catch (error) {
       console.error('Error setting user type:', error);
-      toast.error('Error al configurar tu cuenta');
+      toast.error('Error al configurar tu cuenta. Por favor intenta de nuevo.');
       setSelectedType(null);
     } finally {
       setLoading(false);
