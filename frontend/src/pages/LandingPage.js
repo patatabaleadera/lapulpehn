@@ -34,8 +34,8 @@ const LandingPage = () => {
           </h1>
           
           {/* Subtitle */}
-          <p className="text-xl md:text-2xl mb-10 text-red-100/80 max-w-2xl mx-auto">
-            Conectando comunidades hondureñas con la tienda de barrio más cercana
+          <p className="text-xl md:text-2xl mb-10 text-red-100/80 max-w-2xl mx-auto font-semibold">
+            ¿Qué deseaba?
           </p>
           
           {/* CTA Button */}
