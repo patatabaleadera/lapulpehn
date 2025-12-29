@@ -351,7 +351,7 @@ netstat -tlnp | grep -E '(8001|3000|27017)'
 
 **🏆 La Pulpería v1.1.0 está LISTA PARA PRODUCCIÓN**
 
-**Slogan: "¿Qué deseaba?"**
+**Lema: "Qué deseaba"**
 
 ---
 
