@@ -269,8 +269,11 @@ async def get_current_user(authorization: Optional[str] = Header(None), session_
 
 @api_router.post("/auth/session")
 async def create_session(request: SessionRequest, response: Response):
+    logger.info(f"[AUTH] Received session request with session_id: {request.session_id[:10]}...")
+    
     async with httpx.AsyncClient() as http_client:
         try:
+            logger.info(f"[AUTH] Calling Emergent Auth at: {EMERGENT_AUTH_URL}")
             emergent_response = await http_client.get(
                 EMERGENT_AUTH_URL,
                 headers={"X-Session-ID": request.session_id},
@@ -278,7 +281,9 @@ async def create_session(request: SessionRequest, response: Response):
             )
             emergent_response.raise_for_status()
             auth_data = emergent_response.json()
+            logger.info(f"[AUTH] Emergent Auth successful for email: {auth_data.get('email')}")
         except Exception as e:
+            logger.error(f"[AUTH] Emergent Auth error: {str(e)}")
             raise HTTPException(status_code=502, detail=f"Auth service error: {str(e)}")
     
     user_id = f"user_{uuid.uuid4().hex[:12]}"
@@ -288,6 +293,7 @@ async def create_session(request: SessionRequest, response: Response):
     
     if existing_user:
         user_id = existing_user["user_id"]
+        logger.info(f"[AUTH] Existing user found: {user_id}")
         await db.users.update_one(
             {"user_id": user_id},
             {"$set": {
@@ -297,6 +303,7 @@ async def create_session(request: SessionRequest, response: Response):
         )
         is_new_user = False
     else:
+        logger.info(f"[AUTH] Creating new user: {user_id}")
         user_doc = {
             "user_id": user_id,
             "email": auth_data["email"],
@@ -316,6 +323,7 @@ async def create_session(request: SessionRequest, response: Response):
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.user_sessions.insert_one(session_doc)
+    logger.info(f"[AUTH] Session created for user: {user_id}")
     
     response.set_cookie(
         key="session_token",
@@ -329,6 +337,7 @@ async def create_session(request: SessionRequest, response: Response):
     
     user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
     user["is_new_user"] = is_new_user if 'is_new_user' in dir() else False
+    logger.info(f"[AUTH] Returning user data for: {user_id}, user_type: {user.get('user_type')}")
     return user
 
 @api_router.get("/auth/me")
