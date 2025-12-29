@@ -42,6 +42,8 @@ export const AuthProvider = ({ children }) => {
   const login = useCallback(async (sessionId) => {
     try {
       setLoading(true);
+      console.log('[AuthContext] Attempting login with session ID:', sessionId?.substring(0, 10) + '...');
+      
       const response = await axios.post(
         `${BACKEND_URL}/api/auth/session`,
         { session_id: sessionId },
@@ -51,13 +53,21 @@ export const AuthProvider = ({ children }) => {
         }
       );
 
+      console.log('[AuthContext] Login successful:', response.data);
       const userData = response.data;
       setUser(userData);
       setIsAuthenticated(true);
       return userData;
     } catch (error) {
-      console.error('Login error:', error);
-      toast.error('Error al iniciar sesión. Por favor intenta nuevamente.');
+      console.error('[AuthContext] Login error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        url: `${BACKEND_URL}/api/auth/session`
+      });
+      
+      const errorMsg = error.response?.data?.detail || 'Error al iniciar sesión. Por favor intenta nuevamente.';
+      toast.error(errorMsg);
       throw error;
     } finally {
       setLoading(false);
